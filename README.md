@@ -56,4 +56,40 @@ myRouter.route("about", aboutDiv);
 myRouter.route("contact", { template: "/pages/contact.html", selector: "#contact-form" });
 
 ```
+****
 
+#### Instance Methods
+
+```javascript
+1. route(path, data)
+2. open(path)
+3. fetchTemplate({template, selector})
+4. onPageLoad(path, callback)
+5. addEventListener(event, callback)
+```
+
+#### Instance Properties
+
+```javascript
+1. availableRoutes (getter)
+```
+#### Static Methods
+
+```javascript
+1. initialize()
+2. isRouteDefined(path)
+3. close()
+4. router(name)
+```
+#### Static Properties
+
+```javascript
+1. availableRouters
+2. isInitialized
+3. availableTemplates
+```
+
+## CONTRIBUTOR
+[Amalu Sajeev](https:www.amalusajeev.me)
+
+> Feel free to reach out to me..
