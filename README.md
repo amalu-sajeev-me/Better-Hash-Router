@@ -2,7 +2,7 @@
 #### A better routing using hashed anchor tags on your html pages.
 
 ### Example 
-```
+```javascript
 import { Hash } from "better-hash-router";
 
 Hash.initialize();
