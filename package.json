@@ -1,0 +1,25 @@
+{
+  "name": "better-hash-router",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amalu-sajeev-me/Better-Hash-Router.git"
+  },
+  "keywords": [
+    "hashRouter",
+    "hash",
+    "router",
+    "browserRouter"
+  ],
+  "author": "Amalu Sajeev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/amalu-sajeev-me/Better-Hash-Router/issues"
+  },
+  "homepage": "https://github.com/amalu-sajeev-me/Better-Hash-Router#readme"
+}
