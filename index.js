@@ -129,6 +129,12 @@ class Hash extends EventTarget {
     this.dispatchEvent(openEvent);
   }
 
+  onPageLoad(path, fn) {
+    this.addEventListener("open", (e) => {
+      if (path === e.detail) fn(e);
+    });
+  }
+
   static router(name) {
     const Router = new Hash(name);
     const extendedMethods = ["addEventListener", "dispatchEvent"];
