@@ -19,7 +19,7 @@ class Hash extends EventTarget {
     attributes: { id: "dialog_wrapper" },
   };
 
-  static #targetElement = new MarkupMaker("dialog", this.#targetElemOpts).html;
+  static #targetElement = document.body;
 
   static #availableRouters = [];
 
@@ -38,18 +38,15 @@ class Hash extends EventTarget {
     const path = hash.slice(1);
     const routerAvailable = this.isRouteDefined(path);
     if (routerAvailable) return routerAvailable.open(path);
-    else this.close();
     return false;
   }
 
   static close() {
     this.#targetElement.innerHTML = "";
-    this.#targetElement.close();
   }
 
   static initialize() {
     if (this.isInitialized) throw new Error("Already Initialized");
-    document.body.append(this.#targetElement);
     window.addEventListener("load", this.#showPage.bind(this));
     window.addEventListener("hashchange", this.#showPage.bind(this));
     this.isInitialized = true;
@@ -57,6 +54,7 @@ class Hash extends EventTarget {
   }
 
   static isInitialized = false;
+  static availableTemplates = new Map();
 
   routes = {};
 
@@ -73,24 +71,23 @@ class Hash extends EventTarget {
   }
 
   route(path, data) {
-    const routeData = this.parseRouteData(data);
-    if (routeData.constructor.name === "Promise") {
-      (async () => {
-        const currentPath = location.hash.slice(1);
-        const result = await routeData;
-        this.routes[path] = this.parseRouteData(result);
-        if (path === currentPath) this.open(path);
-      })();
-    } else this.routes[path] = this.parseRouteData(data);
-    const routeEvent = new CustomEvent("route", { detail: path });
-    this.dispatchEvent(routeEvent);
+    this.parseRouteData(data).then((parsedData) => {
+      const parsedEvent = new CustomEvent("doneparsing", {
+        detail: { parsingPath: path },
+      });
+      const currentPath = location.hash.slice(1);
+      this.routes[path] = parsedData;
+      if (path === currentPath) this.open(path);
+      this.dispatchEvent(parsedEvent);
+    });
     return this;
   }
 
-  parseRouteData(data) {
+  async parseRouteData(data) {
     if (typeof data === "string") return data;
+    if (data.constructor.name === "Promise") return await data;
     if (typeof data === "object" && "template" in data)
-      return this.parseDataFromURL(data);
+      return this.parseRouteData(this.fetchTemplate(data));
     if (typeof data === "object" && data instanceof HTMLElement)
       return data.outerHTML;
     if (typeof data === "object" && data instanceof MarkupMaker)
@@ -100,15 +97,24 @@ class Hash extends EventTarget {
     throw new Error("Unknown data !");
   }
 
-  async parseDataFromURL({ template, element = null }) {
+  async fetchTemplate({ template = null, selector = null } = {}) {
+    if (Hash.availableTemplates.has(template))
+      return Hash.availableTemplates.get(template);
+    if (!template)
+      throw new Error("empty template not allowed. must specify the path");
     const url = `${new URL(location.href).origin}/${template}`;
-    const data = await fetch(url).then((res) => res.text());
-    const parser = new DOMParser();
-    const htmlDocument = parser.parseFromString(data, "text/html");
-    const outputHTML = element
-      ? htmlDocument.querySelector(element)
-      : htmlDocument.body;
-    return outputHTML;
+    const htmlData = await fetch(url).then((response) => response.text());
+    const htmlParser = new DOMParser();
+    const templateDocument = htmlParser.parseFromString(htmlData, "text/html");
+    const actualTemplate = selector
+      ? templateDocument.querySelector(selector)
+      : templateDocument.body;
+    if (!actualTemplate instanceof HTMLElement)
+      throw new Error("invalid template");
+    Hash.availableTemplates.set(template, actualTemplate);
+    if (actualTemplate instanceof HTMLBodyElement)
+      return actualTemplate.innerHTML;
+    return actualTemplate.innerHTML;
   }
 
   get availableRoutes() {
