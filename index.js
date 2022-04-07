@@ -64,7 +64,7 @@ class Hash extends EventTarget {
    */
 
   constructor(name) {
-    if (!Hash.isInitialized) throw new Error("you must initialize first");
+    if (!Hash.isInitialized) Hash.initialize();
     super(name);
     this.name = name;
     Hash.#availableRouters.push(this);
