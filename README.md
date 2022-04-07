@@ -10,6 +10,9 @@ import { Hash } from "better-hash-router";
 const { Hash } = require("better-hash-router");
 ```
 
+
+### How TO
+
 1. First you have to initialize the library, else it'll remind you to doing so by throwing an error. 
 
 ```javascript
@@ -32,31 +35,75 @@ const myRouter = Hash.router("name");
 ```
 3. Now you can add new Routes to your Router instance.
 
-```javascript
-/* route method accepts 2 parameters. 
- * 1. path: a String representing the hashed path without the #. 
- *    eg. if path is "#about" then remove the #. which is "about"
- * 2. data: String | HTMLElement | Object
- *    data can be passed in as multiple formats. see the examples below.
- */
-// Here, data is Passed as a String
-myRouter.route("home", "text or html to be displayed");
+   route() method accepts 2 parameters. 
+  * **path**: a String representing the hashed path without the #. 
+     eg. if path is "#about" then remove the #. which is "about"
+  * **data**: String | HTMLElement | Object
+     data can be passed in as multiple formats. see the examples below.
+     
+   _Both Arguments are Mandatory._
+ 
+ 
+- Here, data is Passed as a String
 
-// Here, data will be passed as an HTMLElement
+```javascript
+myRouter.route("home", "text or html to be displayed");
+```
+
+- Here, data will be passed as an HTMLElement
+
+```javascript
 const aboutDiv = document.createElement("div");
 aboutDiv.innerHTML = "Hey this is about me";
 
 myRouter.route("about", aboutDiv);
+```
 
-/* Here data will be passed as an Object.
- * { template: "absolute path to file", selector: "css selector" }
- * NOTE: Here the selector is optional.
- */
+- Here data will be passed as an Object.
+  * { **template**: "absolute path to file", **selector**: "css selector" }
+ 
+ _NOTE: Here the selector is optional._
 
-myRouter.route("contact", { template: "/pages/contact.html", selector: "#contact-form" });
-
+```javascript
+myRouter.route("contact", { 
+ template: "/pages/contact.html", 
+ selector: "#contact-form" 
+});
 ```
 ****
+
+#### Chaining route() methods
+instance.route() can be chained since it returns the instance itself.
+
+```javascript
+const myRouter = Hash.router("navigation");
+myRouter
+.route("about", "this page shows info about me")
+.route("contact", "my contact info")
+.route("any_other_route", "some interesting stuff"); 
+
+// goto yourdomain:port/#any_other_route to see the content
+```
+#### Manually open a page
+instance.open() can be used to open a path manually.
+- accepts an argument **Path** as a String
+
+```javascript
+const button = document.getElementById("contact-button");
+button.addEventListener("click", event => {
+myRouter.open("contact");
+});
+```
+****
+#### Events
+
+1. "open" - fires when you open a page using instance.open(path).
+2. "doneparsing" - fires when a intance.route(path, data) parse a template.
+
+#### Event Handlers
+
+1. addEventListener - instance.addEventListener("event", callback).
+2. onPageLoad - instance.onPageLoad("path", callback).
 
 #### Instance Methods
 
