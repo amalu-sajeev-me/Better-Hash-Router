@@ -71,6 +71,9 @@ class Hash extends EventTarget {
   }
 
   route(path, data) {
+    if (Hash.isRouteDefined(path))
+      throw new Error(`Route Handler for "${path}" is already defined`);
+    if (!data) throw new Error("Invalid Data Recieved");
     this.parseRouteData(data).then((parsedData) => {
       const parsedEvent = new CustomEvent("doneparsing", {
         detail: { parsingPath: path },
@@ -87,34 +90,43 @@ class Hash extends EventTarget {
     if (typeof data === "string") return data;
     if (data.constructor.name === "Promise") return await data;
     if (typeof data === "object" && "template" in data)
-      return this.parseRouteData(this.fetchTemplate(data));
+      return await this.parseRouteData(await this.fetchTemplate(data));
     if (typeof data === "object" && data instanceof HTMLElement)
       return data.outerHTML;
     if (typeof data === "object" && data instanceof MarkupMaker)
       return data.string;
     if (typeof data === "function")
-      return this.parseRouteData(data(MarkupMaker));
+      return await this.parseRouteData(data(MarkupMaker));
     throw new Error("Unknown data !");
   }
 
   async fetchTemplate({ template = null, selector = null } = {}) {
-    if (Hash.availableTemplates.has(template))
-      return Hash.availableTemplates.get(template);
     if (!template)
       throw new Error("empty template not allowed. must specify the path");
+
+    if (Hash.availableTemplates.has(template))
+      return Hash.availableTemplates.get(template);
+
     const url = `${new URL(location.href).origin}/${template}`;
     const htmlData = await fetch(url).then((response) => response.text());
     const htmlParser = new DOMParser();
     const templateDocument = htmlParser.parseFromString(htmlData, "text/html");
+
     const actualTemplate = selector
       ? templateDocument.querySelector(selector)
       : templateDocument.body;
+
     if (!actualTemplate instanceof HTMLElement)
       throw new Error("invalid template");
-    Hash.availableTemplates.set(template, actualTemplate);
-    if (actualTemplate instanceof HTMLBodyElement)
-      return actualTemplate.innerHTML;
-    return actualTemplate.innerHTML;
+
+    const output =
+      actualTemplate instanceof HTMLBodyElement
+        ? actualTemplate.innerHTML
+        : actualTemplate.outerHTML;
+
+    Hash.availableTemplates.set(template, output);
+
+    return output;
   }
 
   get availableRoutes() {
@@ -122,9 +134,11 @@ class Hash extends EventTarget {
   }
 
   open(path) {
+    if (!Hash.isRouteDefined(path)) throw new Error("Invalid Path");
+
     const dialog = Hash.#targetElement;
     if (path in this.routes) dialog.innerHTML = this.routes[path];
-    if (!dialog.open) dialog.open = true;
+
     const openEvent = new CustomEvent("open", { detail: path });
     this.dispatchEvent(openEvent);
   }
@@ -134,6 +148,8 @@ class Hash extends EventTarget {
       if (path === e.detail) fn(e);
     });
   }
+
+  /* PROXY ==> */
 
   static router(name) {
     const Router = new Hash(name);
@@ -155,6 +171,7 @@ class Hash extends EventTarget {
     const routerProxy = new Proxy(Router, proxyHandler);
     return routerProxy;
   }
+  /* */
 }
-
+export default Hash;
 export { Hash };
