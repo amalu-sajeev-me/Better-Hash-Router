@@ -60,7 +60,7 @@ myRouter.route("about", aboutDiv);
 ```
 
 - Here data will be passed as an Object.
- { template: "absolute path to file", selector: "css selector" }
+  * { **template**: "absolute path to file", **selector**: "css selector" }
  
  _NOTE: Here the selector is optional._
 
@@ -84,6 +84,26 @@ myRouter
 
 // goto yourdomain:port/#any_other_route to see the content
 ```
+#### Manually open a page
+instance.open() can be used to open a path manually.
+- accepts an argument **Path** as a String
+
+```javascript
+const button = document.getElementById("contact-button");
+button.addEventListener("click", event => {
+myRouter.open("contact");
+});
+```
+****
+#### Events
+
+1. "open" - fires when you open a page using instance.open(path).
+2. "doneparsing" - fires when a intance.route(path, data) parse a template.
+
+#### Event Handlers
+
+1. addEventListener - instance.addEventListener("event", callback).
+2. onPageLoad - instance.onPageLoad("path", callback).
 
 #### Instance Methods
 
