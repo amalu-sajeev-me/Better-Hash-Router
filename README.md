@@ -3,7 +3,7 @@
 
 ### Usage
 
-include the script from CDN link on your HTML file's <head> tag
+include the script from CDN link on your HTML file's ``<head>`` tag
 
 ```html
 <script src="https://unpkg.com/better-hash-router@latest" async></script>
