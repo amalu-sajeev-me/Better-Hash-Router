@@ -1,5 +1,3 @@
-import { MarkupMaker } from "./MarkupMaker.js";
-
 //  UTILS..
 
 const isRequired = (param = null) => {
@@ -30,8 +28,10 @@ class Hash extends EventTarget {
   static #showPage() {
     const { hash } = location;
     const path = location.href.at(-1) === "/" ? "/" : hash.slice(1);
+    const defaultRoute = this.isRouteDefined("/");
     const routerAvailable = this.isRouteDefined(path);
     if (routerAvailable) return routerAvailable.open(path);
+    else return defaultRoute.open("/");
     return false;
   }
 
@@ -96,10 +96,7 @@ class Hash extends EventTarget {
       return await this.parseRouteData(await this.fetchTemplate(data));
     if (typeof data === "object" && data instanceof HTMLElement)
       return data.outerHTML;
-    if (typeof data === "object" && data instanceof MarkupMaker)
-      return data.string;
-    if (typeof data === "function")
-      return await this.parseRouteData(data(MarkupMaker));
+    if (typeof data === "function") return await this.parseRouteData(data());
     throw new Error("Unknown data !");
   }
 
