@@ -1,4 +1,4 @@
-import { Hash } from "../index.js";
+import { Hash } from "https://unpkg.com/better-hash-router@latest";
 
 Hash.initialize();
 
