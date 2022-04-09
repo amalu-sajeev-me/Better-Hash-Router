@@ -9,4 +9,7 @@ myNavigation
     "/",
     "hello world click <a href='#contact'>here</a> for the contact page"
   )
-  .route("contact", { template: "examples/pages/contact.html" });
+  .route("contact", {
+    template: "examples/pages/contact.html",
+    selector: "#contact",
+  });

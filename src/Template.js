@@ -39,13 +39,15 @@ class Template extends EventTarget {
     try {
       const response = await fetch(request);
       if (response.ok) return await response.text();
+      if (response.status === 404) throw new Error(`Page Not Found`);
     } catch (e) {
       console.error(`couldn't fetch the template \n${e}`);
+      if (e) return e.message;
     }
     return false;
   }
 
-  // parse an HTML Document from he fetched file
+  // parse an HTML Document from the fetched file
   #parseTemplate(templateString) {
     const htmlParser = new DOMParser();
     const htmlDoc = htmlParser.parseFromString(templateString, "text/html");
