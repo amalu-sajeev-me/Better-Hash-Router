@@ -1,7 +1,7 @@
 {
   "name": "better-hash-router",
-  "version": "2.0.0",
-  "description": "",
+  "version": "2.1.0",
+  "description": "A Router Library for Hash links on an html page",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
