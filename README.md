@@ -1,13 +1,20 @@
 # Better-Hash-Router
-#### A better routing using hashed anchor tags on your html pages.
+### A better routing using hashed anchor tags on your html pages.
 
-### Usage
+#### Usage
 
-include the script from CDN link on your HTML file's ``<head>`` tag
+include the script from CDN [https://unpkg.com/better-hash-router@latest](https://unpkg.com/better-hash-router@latest)
 
+**index.html**
 ```html
-<script src="https://unpkg.com/better-hash-router@latest" async></script>
+<script src="./script.js" type="module"></script>
 ```
+**script.js**
+```javascript
+import { Hash } from "https://unpkg.com/better-hash-router@latest";
+```
+> see HTML example on Github [here](https://github.com/amalu-sajeev-me/Better-Hash-Router/tree/main/examples)
+
 or if you're using npm
 
 ```javascript
@@ -33,7 +40,9 @@ Hash.initialize();
  */
  
 const myRouter = new Hash("router-name");
-
+```
+or
+```javascript
 /* preferred way
  * This returns a Proxy to the router instance. 
  * (using the proxy may reduce the chances of errors.
@@ -43,26 +52,26 @@ const myRouter = Hash.router("name");
 ```
 3. Now you can add new Routes to your Router instance.
 
-   route() method accepts 2 parameters. 
-  * ``path``: a String representing the hashed path without the #. 
-     eg. if path is "#about" then remove the #. which is "about"
-  * ``data``: String | HTMLElement | Object
+   ``route()`` method accepts 2 parameters. 
+  * ``path``: a String representing the hashed path without the ``#``. 
+     eg. if path is ``"#about"`` then remove the ``#``. which is ``"about"``
+  * ``data``: ``String | HTMLElement | Object``
      data can be passed in as multiple formats. see the examples below.
   * ``route()`` method returns the router instance. therefore the method is chainable.
      
    _Both Arguments are Mandatory._
  
- > "/" path determines the root path. so the contents assigned to the "/" route will be displayed when you open your page.
+ > ``"/"`` path determines the root path. so the contents assigned to the ``"/"`` route will be displayed when you open your page.
  
  
-- Here, data is Passed as a String
+- Here, ``data`` is Passed as a String
 
 ```javascript
 // http://localhost/
 myRouter.route("/", "this will be displayed on your root");
 ```
 
-- Here, data will be passed as an HTMLElement
+- Here, ``data`` will be passed as an HTMLElement
 
 ```javascript
 const aboutDiv = document.createElement("div");
@@ -72,13 +81,16 @@ aboutDiv.innerHTML = "Hey this is about me";
 myRouter.route("about", aboutDiv);
 ```
 
-- Here data will be passed as an Object.
-  * { **template**: "absolute path to file", **selector**: "css selector" }
+- Here ``data`` will be passed as an ``Object``
+  * ``{ 
+    template: "absolute path to file", 
+    selector: "css selector" 
+    }``
  
  > assuming that you have an html file on ``/pages/contact.html`` and there is an element with id ``contact-form``
  
- _NOTE: Here the selector is optional._
- _if selector is not provided, then all the contents of the ``contact.html``'s body will be copied to the route._
+ _NOTE: Here the ``selector`` is optional._
+ _if ``selector`` is not provided, then all the contents of the ``contact.html``'s body will be copied to the route._
 
 ```javascript
 // http://localhost/#contact
@@ -120,8 +132,8 @@ myRouter.open("contact");
 
 #### Event Handlers
 
-1. addEventListener - ``instance.addEventListener("event", callback)``.
-2. onPageLoad - ``instance.onPageLoad("path", callback)``.
+1. ``addEventListener`` - ``instance.addEventListener("event", callback)``.
+2. ``onPageLoad`` - ``instance.onPageLoad("path", callback)``.
 
 #### Instance Methods
 
@@ -158,8 +170,8 @@ myRouter.open("contact");
  
  ### Examples
 
-1. using a function as the ``data`` argument.
- > function must have a return statement of a ``String`` or an ``HTMLElement``
+1. using a ``function`` as the ``data`` argument.
+ > function must have a ``return`` statement of a ``String`` or an ``HTMLElement``
  
 ```javascript
 Hash.initialize();
