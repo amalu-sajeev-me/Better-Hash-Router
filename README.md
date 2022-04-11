@@ -35,21 +35,13 @@ Hash.initialize();
 ```
 2. Now you have to create a new Router instance.
 ```javascript
-/* Legacy way
+/* 
  * This returns a new router instance. 
  */
  
 const myRouter = new Hash("router-name");
 ```
-or
-```javascript
-/* preferred way
- * This returns a Proxy to the router instance. 
- * (using the proxy may reduce the chances of errors.
- */ 
- 
-const myRouter = Hash.router("name");
-```
+
 3. Now you can add new Routes to your Router instance.
 
    ``route()`` method accepts 2 parameters. 
