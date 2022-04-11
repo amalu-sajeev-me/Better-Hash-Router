@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { Hash } from "https://unpkg.com/better-hash-router@latest";
-// import { Hash } from "../dist/Hash.js";
+// import { Hash } from "https://unpkg.com/better-hash-router@latest";
+import { Hash } from "../dist/Hash.js";
 
 Hash.initialize();
 

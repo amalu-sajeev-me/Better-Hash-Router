@@ -20,28 +20,38 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
 };
 var _Template_instances, _Template_templateFile, _Template_readFile, _Template_parseTemplate, _Template_parseQuery;
 class Template extends EventTarget {
-    // Template Construcor method
+    /**
+     * Template Construcor method
+     * @param name
+     * @param resourceUrl
+     * @param selector
+     */
     constructor(name, resourceUrl, selector) {
-        // calling parent constructor
         super();
-        _Template_instances.add(this);
-        // fetched template String
-        _Template_templateFile.set(this, void 0);
         this.name = name;
         this.resourceUrl = resourceUrl;
         this.selector = selector;
+        _Template_instances.add(this);
+        // fetched template String
+        _Template_templateFile.set(this, void 0);
         __classPrivateFieldGet(this, _Template_instances, "m", _Template_readFile).call(this).then((response) => {
             __classPrivateFieldSet(this, _Template_templateFile, __classPrivateFieldGet(this, _Template_instances, "m", _Template_parseTemplate).call(this, response), "f");
             const responseReady = new CustomEvent("ready");
             this.dispatchEvent(responseReady);
         });
     }
-    // EventListener for template ready Event
+    /**
+     * EventListener for template ready Event
+     * @param callback
+     * @returns
+     */
     onReady(callback) {
         this.addEventListener("ready", callback);
         return this;
     }
-    // getter for template html
+    /**
+     * getter for template html
+     */
     get html() {
         return __classPrivateFieldGet(this, _Template_templateFile, "f");
     }
@@ -77,10 +87,8 @@ _Template_templateFile = new WeakMap(), _Template_instances = new WeakSet(), _Te
     const parsedElementData = parsedElement instanceof HTMLBodyElement
         ? parsedElement.innerHTML
         : parsedElement.outerHTML;
-    // const fragment = new DocumentFragment();
     const wrapperElem = document.createElement("div");
     wrapperElem.innerHTML = parsedElementData;
-    // fragment.appendChild(wrapperElem);
     const templateElement = wrapperElem;
     return templateElement.innerHTML;
 }, _Template_parseQuery = function _Template_parseQuery(htmlDocument) {
@@ -94,5 +102,6 @@ _Template_templateFile = new WeakMap(), _Template_instances = new WeakSet(), _Te
         throw new Error(`invalid query.\ncouldn't find ${query} element`);
     return result;
 };
+export default Template;
 export { Template };
 //# sourceMappingURL=Template.js.map

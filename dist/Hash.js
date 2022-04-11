@@ -17,17 +17,17 @@ import { Template } from "./Template.js";
 //  HASH CLASS ===>>
 class Hash extends EventTarget {
     /**
-     *
+     * new router constructor
      * @param {*} name
      */
     // Hash constructor method
     constructor(name) {
         super();
+        this.name = name;
         // list of all routes created in a router instance
         this.routes = {};
         if (!Hash.isInitialized)
             throw new Error("Hash is not initialized");
-        this.name = name;
         __classPrivateFieldGet(Hash, _a, "f", _Hash_availableRouters).push(this);
     }
     // getter for readonly availableRouters property
@@ -54,7 +54,13 @@ class Hash extends EventTarget {
         this.isInitialized = true;
         return this.isInitialized;
     }
-    // adds new route information to the routes list
+    /**
+     * adds new route information to the routes list
+     * @param path
+     * @param data
+     * @return {Hash}
+     *
+     **/
     route(path, data) {
         if (Hash.isRouteDefined(path))
             throw new Error(`Route Handler for "${path}" is already defined`);
@@ -72,7 +78,11 @@ class Hash extends EventTarget {
         });
         return this;
     }
-    // parse the route data into html string
+    /**
+     * parse the route data into html string
+     * @param data
+     * @returns {Promise<any>}
+     */
     parseRouteData(data) {
         return __awaiter(this, void 0, void 0, function* () {
             if (typeof data === "string")
@@ -88,7 +98,11 @@ class Hash extends EventTarget {
             throw new Error("Unknown data !");
         });
     }
-    // fetch a template from the specified html file and css selector
+    /**
+     *
+     * @param {ITemplateInit}
+     * @returns {Promise<any>}
+     */
     fetchTemplate({ template, selector }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!template)
@@ -108,7 +122,10 @@ class Hash extends EventTarget {
     get availableRoutes() {
         return this.routes;
     }
-    // open a page with specified path if its exists
+    /**
+     * open a page with specified path if its exists
+     * @param path
+     */
     open(path) {
         if (!Hash.isRouteDefined(path))
             throw new Error("Invalid Path");
@@ -117,8 +134,14 @@ class Hash extends EventTarget {
             dialog.innerHTML = this.routes[path];
         const openEvent = new CustomEvent("open", { detail: path });
         this.dispatchEvent(openEvent);
+        return this;
     }
-    // executes the callback function after the specified page is loaded into DOM
+    /**
+     * executes the callback function after the specified page is loaded into DOM
+     * @param path
+     * @param fn
+     * @returns {Hash}
+     */
     onPageLoad(path, fn) {
         this.addEventListener("open", (e) => {
             if (path === e.detail)
@@ -126,6 +149,12 @@ class Hash extends EventTarget {
         });
         return this;
     }
+    /**
+     * executes the callback function after the specified route is parsed
+     * @param path
+     * @param fn
+     * @returns {Hash}
+     */
     onReady(path, fn) {
         this.addEventListener("doneparsing", (e) => {
             if (path === e.detail.parsingPath)
