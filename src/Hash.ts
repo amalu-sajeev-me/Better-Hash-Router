@@ -1,10 +1,10 @@
 import { Template } from "./Template.js";
-import { IRoute, ITemplateInit } from "./types.js";
+import { IHash, IRoute, ITemplateInit } from "./types.js";
 
 //  HASH CLASS ===>>
-class Hash extends EventTarget {
+class Hash extends EventTarget implements IHash {
   // Hash binds to an HTMLElement to make routing possile.
-  static #targetElement = document.body;
+  static readonly #targetElement = document.body;
 
   // Array of all router instances
   static #availableRouters: Hash[] = [];
@@ -54,22 +54,26 @@ class Hash extends EventTarget {
 
   // list of all routes created in a router instance
   routes: IRoute = {};
-  name: string;
   /**
-   *
+   * new router constructor
    * @param {*} name
    */
 
   // Hash constructor method
-  constructor(name: string) {
+  constructor(public name: string) {
     super();
     if (!Hash.isInitialized) throw new Error("Hash is not initialized");
-    this.name = name;
     Hash.#availableRouters.push(this);
   }
 
-  // adds new route information to the routes list
-  route(path: string, data: string | Function | HTMLElement) {
+  /**
+   * adds new route information to the routes list
+   * @param path
+   * @param data
+   * @return {Hash}
+   *
+   **/
+  route(path: string, data: string | Function | HTMLElement): IHash {
     if (Hash.isRouteDefined(path))
       throw new Error(`Route Handler for "${path}" is already defined`);
     if (!data) throw new Error("Invalid Data Recieved");
@@ -85,7 +89,11 @@ class Hash extends EventTarget {
     return this;
   }
 
-  // parse the route data into html string
+  /**
+   * parse the route data into html string
+   * @param data
+   * @returns {Promise<any>}
+   */
   async parseRouteData(data: string | HTMLElement | Function): Promise<any> {
     if (typeof data === "string") return data;
     if (data.constructor.name === "Promise") return await data;
@@ -97,8 +105,12 @@ class Hash extends EventTarget {
     throw new Error("Unknown data !");
   }
 
-  // fetch a template from the specified html file and css selector
-  async fetchTemplate({ template, selector }: ITemplateInit) {
+  /**
+   *
+   * @param {ITemplateInit}
+   * @returns {Promise<any>}
+   */
+  async fetchTemplate({ template, selector }: ITemplateInit): Promise<any> {
     if (!template)
       throw new Error("empty template not allowed. must specify the path");
 
@@ -119,8 +131,11 @@ class Hash extends EventTarget {
     return this.routes;
   }
 
-  // open a page with specified path if its exists
-  open(path: string) {
+  /**
+   * open a page with specified path if its exists
+   * @param path
+   */
+  open(path: string): Hash {
     if (!Hash.isRouteDefined(path)) throw new Error("Invalid Path");
 
     const dialog = Hash.#targetElement;
@@ -128,17 +143,29 @@ class Hash extends EventTarget {
 
     const openEvent = new CustomEvent("open", { detail: path });
     this.dispatchEvent(openEvent);
+    return this;
   }
 
-  // executes the callback function after the specified page is loaded into DOM
-  onPageLoad(path: string, fn: Function) {
+  /**
+   * executes the callback function after the specified page is loaded into DOM
+   * @param path
+   * @param fn
+   * @returns {Hash}
+   */
+  onPageLoad(path: string, fn: Function): Hash {
     this.addEventListener("open", (e: CustomEventInit) => {
       if (path === e.detail) fn(e);
     });
     return this;
   }
 
-  onReady(path: string, fn: Function) {
+  /**
+   * executes the callback function after the specified route is parsed
+   * @param path
+   * @param fn
+   * @returns {Hash}
+   */
+  onReady(path: string, fn: Function): Hash {
     this.addEventListener("doneparsing", (e: CustomEventInit) => {
       if (path === e.detail.parsingPath) fn(e);
     });

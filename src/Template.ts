@@ -2,17 +2,19 @@ import { ITemplate } from "./types";
 class Template extends EventTarget implements ITemplate {
   // fetched template String
   #templateFile?: string;
-  name: string;
-  resourceUrl: string;
-  selector?: string | undefined;
 
-  // Template Construcor method
-  constructor(name: string, resourceUrl: string, selector: string) {
-    // calling parent constructor
+  /**
+   * Template Construcor method
+   * @param name
+   * @param resourceUrl
+   * @param selector
+   */
+  constructor(
+    public name: string,
+    public resourceUrl: string,
+    public selector?: string
+  ) {
     super();
-    this.name = name;
-    this.resourceUrl = resourceUrl;
-    this.selector = selector;
 
     this.#readFile().then((response) => {
       this.#templateFile = this.#parseTemplate(response);
@@ -21,7 +23,10 @@ class Template extends EventTarget implements ITemplate {
     });
   }
 
-  // read the contents of html file
+  /**
+   * read the contents of html file
+   * @returns {Promise<any>}
+   */
   async #readFile(): Promise<any> {
     const url = new URL(`${location.origin}/${this.resourceUrl}`);
     const headers = new Headers();
@@ -45,7 +50,11 @@ class Template extends EventTarget implements ITemplate {
     return false;
   }
 
-  // parse an HTML Document from the fetched file
+  /**
+   * parse an HTML Document from the fetched file
+   * @param templateString
+   * @returns
+   */
   #parseTemplate(templateString: string) {
     const htmlParser = new DOMParser();
     const htmlDoc = htmlParser.parseFromString(templateString, "text/html");
@@ -54,15 +63,19 @@ class Template extends EventTarget implements ITemplate {
       parsedElement instanceof HTMLBodyElement
         ? parsedElement.innerHTML
         : parsedElement.outerHTML;
-    // const fragment = new DocumentFragment();
+
     const wrapperElem = document.createElement("div");
     wrapperElem.innerHTML = parsedElementData;
-    // fragment.appendChild(wrapperElem);
+
     const templateElement: HTMLElement = wrapperElem;
     return templateElement.innerHTML;
   }
 
-  // parse the document to find the element specified in the query selector
+  /**
+   * parse the document to find the element specified in the query selector
+   * @param htmlDocument
+   * @returns
+   */
   #parseQuery(htmlDocument: Document) {
     if (!(htmlDocument instanceof Document))
       throw new Error(`unknown input recieved`);
@@ -75,16 +88,23 @@ class Template extends EventTarget implements ITemplate {
     return result;
   }
 
-  // EventListener for template ready Event
+  /**
+   * EventListener for template ready Event
+   * @param callback
+   * @returns
+   */
   onReady(callback: () => void) {
     this.addEventListener("ready", callback);
     return this;
   }
 
-  // getter for template html
+  /**
+   * getter for template html
+   */
   get html(): string | undefined {
     return this.#templateFile;
   }
 }
 
+export default Template;
 export { Template };

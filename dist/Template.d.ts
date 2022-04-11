@@ -4,8 +4,23 @@ declare class Template extends EventTarget implements ITemplate {
     name: string;
     resourceUrl: string;
     selector?: string | undefined;
-    constructor(name: string, resourceUrl: string, selector: string);
+    /**
+     * Template Construcor method
+     * @param name
+     * @param resourceUrl
+     * @param selector
+     */
+    constructor(name: string, resourceUrl: string, selector?: string | undefined);
+    /**
+     * EventListener for template ready Event
+     * @param callback
+     * @returns
+     */
     onReady(callback: () => void): this;
+    /**
+     * getter for template html
+     */
     get html(): string | undefined;
 }
+export default Template;
 export { Template };
