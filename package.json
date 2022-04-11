@@ -1,9 +1,10 @@
 {
   "name": "better-hash-router",
-  "version": "2.1.1",
+  "version": "3.1.1",
   "description": "A Router Library for Hash links on an html page",
-  "main": "index.js",
+  "main": "./dist/Hash.js",
   "scripts": {
+    "build": "npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,10 +17,25 @@
     "router",
     "browserRouter"
   ],
-  "author": "Amalu Sajeev",
+  "author": {
+    "name": "Amalu Sajeev",
+    "email": "amalu.sajeev.me@gmail.com",
+    "url": "https://www.amalusajeev.me"
+  },
+  "contributors": [
+    {
+      "name": "Amalu Sajeev",
+      "email": "amalu.sajeev.me@gmail.com",
+      "url": "https://www.amalusajeev.me"
+    }
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/amalu-sajeev-me/Better-Hash-Router/issues"
+    "url": "https://github.com/amalu-sajeev-me/Better-Hash-Router/issues",
+    "email": "amalu.sajeev.me@gmail.com"
   },
-  "homepage": "https://github.com/amalu-sajeev-me/Better-Hash-Router#readme"
+  "homepage": "https://github.com/amalu-sajeev-me/Better-Hash-Router#readme",
+  "devDependencies": {
+    "typescript": "^4.6.3"
+  }
 }

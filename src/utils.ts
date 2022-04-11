@@ -1,6 +1,6 @@
 //  UTILS..
 
-const isRequired = (param = null) => {
+const isRequired = (param: string): never => {
   throw new Error(`${param} parameter is required`);
 };
 
