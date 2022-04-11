@@ -1,1 +1,1 @@
-export * from "./src/Hash.js";
+export * from "./dist/Hash.js";

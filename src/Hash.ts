@@ -1,5 +1,5 @@
-import { isRequired } from "./utils.js";
 import { Template } from "./Template.js";
+import { IRoute, ITemplateInit } from "./types.js";
 
 //  HASH CLASS ===>>
 class Hash extends EventTarget {
@@ -7,7 +7,7 @@ class Hash extends EventTarget {
   static #targetElement = document.body;
 
   // Array of all router instances
-  static #availableRouters = [];
+  static #availableRouters: Hash[] = [];
 
   // getter for readonly availableRouters property
   static get availableRouters() {
@@ -15,7 +15,7 @@ class Hash extends EventTarget {
   }
 
   // checks if a specified path exists in any of the routers
-  static isRouteDefined(path = isRequired("path")) {
+  static isRouteDefined(path: string): Hash | false {
     for (let router of this.availableRouters)
       if (path in router.availableRoutes) return router;
     return false;
@@ -24,12 +24,12 @@ class Hash extends EventTarget {
   // shows the pages on certain events
   static #showPage() {
     const { hash } = location;
-    const path = location.href.at(-1) === "/" ? "/" : hash.slice(1);
-    const defaultRoute = this.isRouteDefined("/");
+    const path =
+      location.href[location.href.length - 1] === "/" ? "/" : hash.slice(1);
     const routerAvailable = this.isRouteDefined(path);
     if (routerAvailable) return routerAvailable.open(path);
-    else return defaultRoute.open("/"); // NEED TO UPDATE :BUG
-    return false;
+    const defaultRoute = this.isRouteDefined("/");
+    if (defaultRoute) return defaultRoute.open("/"); // NEED TO UPDATE :BUG
   }
 
   // removes the contents of the page
@@ -53,27 +53,27 @@ class Hash extends EventTarget {
   static availableTemplates = new Map();
 
   // list of all routes created in a router instance
-  routes = {};
-
+  routes: IRoute = {};
+  name: string;
   /**
    *
    * @param {*} name
    */
 
   // Hash constructor method
-  constructor(name = isRequired("name")) {
+  constructor(name: string) {
+    super();
     if (!Hash.isInitialized) throw new Error("Hash is not initialized");
-    super(name);
     this.name = name;
     Hash.#availableRouters.push(this);
   }
 
   // adds new route information to the routes list
-  route(path = isRequired("path"), data = isRequired("data")) {
+  route(path: string, data: string | Function | HTMLElement) {
     if (Hash.isRouteDefined(path))
       throw new Error(`Route Handler for "${path}" is already defined`);
     if (!data) throw new Error("Invalid Data Recieved");
-    this.parseRouteData(data).then((parsedData) => {
+    this.parseRouteData(data).then((parsedData: string) => {
       const parsedEvent = new CustomEvent("doneparsing", {
         detail: { parsingPath: path },
       });
@@ -86,7 +86,7 @@ class Hash extends EventTarget {
   }
 
   // parse the route data into html string
-  async parseRouteData(data) {
+  async parseRouteData(data: string | HTMLElement | Function): Promise<any> {
     if (typeof data === "string") return data;
     if (data.constructor.name === "Promise") return await data;
     if (typeof data === "object" && "template" in data)
@@ -98,9 +98,7 @@ class Hash extends EventTarget {
   }
 
   // fetch a template from the specified html file and css selector
-  async fetchTemplate(
-    { template = null, selector = null } = isRequired("options")
-  ) {
+  async fetchTemplate({ template, selector }: ITemplateInit) {
     if (!template)
       throw new Error("empty template not allowed. must specify the path");
 
@@ -122,7 +120,7 @@ class Hash extends EventTarget {
   }
 
   // open a page with specified path if its exists
-  open(path = isRequired("path")) {
+  open(path: string) {
     if (!Hash.isRouteDefined(path)) throw new Error("Invalid Path");
 
     const dialog = Hash.#targetElement;
@@ -133,37 +131,19 @@ class Hash extends EventTarget {
   }
 
   // executes the callback function after the specified page is loaded into DOM
-  onPageLoad(path, fn) {
-    this.addEventListener("open", (e) => {
+  onPageLoad(path: string, fn: Function) {
+    this.addEventListener("open", (e: CustomEventInit) => {
       if (path === e.detail) fn(e);
     });
     return this;
   }
 
-  /* PROXY ==> */
-
-  static router(name) {
-    const Router = new Hash(name);
-    const proxyHandler = {
-      get(target, prop) {
-        const property = target[prop];
-
-        if (!prop in target) throw new Error(`${prop} property Not Found`);
-        if (property.constructor.name === "Function")
-          return property.bind(target);
-        return property;
-      },
-      set() {
-        throw new Error("Access Denied. Properties are read only");
-      },
-      has(target, prop) {
-        return prop in target || prop in target.availableRoutes;
-      },
-    };
-    return new Proxy(Router, proxyHandler);
+  onReady(path: string, fn: Function) {
+    this.addEventListener("doneparsing", (e: CustomEventInit) => {
+      if (path === e.detail.parsingPath) fn(e);
+    });
+    return this;
   }
-  /* */
 }
-const { router } = Hash;
 export default Hash;
-export { Hash, router };
+export { Hash };

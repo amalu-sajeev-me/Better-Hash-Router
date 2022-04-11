@@ -1,18 +1,16 @@
-import { isRequired } from "./utils.js";
-
-class Template extends EventTarget {
+import { ITemplate } from "./types";
+class Template extends EventTarget implements ITemplate {
   // fetched template String
-  #templateFile;
+  #templateFile?: string;
+  name: string;
+  resourceUrl: string;
+  selector?: string | undefined;
 
   // Template Construcor method
-  constructor(
-    name = isRequired(`template name`),
-    resourceUrl = isRequired(`resource url`),
-    selector
-  ) {
+  constructor(name: string, resourceUrl: string, selector: string) {
     // calling parent constructor
-    super(name);
-
+    super();
+    this.name = name;
     this.resourceUrl = resourceUrl;
     this.selector = selector;
 
@@ -24,13 +22,13 @@ class Template extends EventTarget {
   }
 
   // read the contents of html file
-  async #readFile() {
+  async #readFile(): Promise<any> {
     const url = new URL(`${location.origin}/${this.resourceUrl}`);
     const headers = new Headers();
 
     headers.set("Content-Type", "text/html");
 
-    const request = new Request(url, {
+    const request = new Request(url.href, {
       method: "GET",
       headers,
       credentials: "include",
@@ -40,7 +38,7 @@ class Template extends EventTarget {
       const response = await fetch(request);
       if (response.ok) return await response.text();
       if (response.status === 404) throw new Error(`Page Not Found`);
-    } catch (e) {
+    } catch (e: any) {
       console.error(`couldn't fetch the template \n${e}`);
       if (e) return e.message;
     }
@@ -48,7 +46,7 @@ class Template extends EventTarget {
   }
 
   // parse an HTML Document from the fetched file
-  #parseTemplate(templateString) {
+  #parseTemplate(templateString: string) {
     const htmlParser = new DOMParser();
     const htmlDoc = htmlParser.parseFromString(templateString, "text/html");
     const parsedElement = this.#parseQuery(htmlDoc);
@@ -56,16 +54,16 @@ class Template extends EventTarget {
       parsedElement instanceof HTMLBodyElement
         ? parsedElement.innerHTML
         : parsedElement.outerHTML;
-    const fragment = new DocumentFragment();
+    // const fragment = new DocumentFragment();
     const wrapperElem = document.createElement("div");
     wrapperElem.innerHTML = parsedElementData;
-    fragment.appendChild(wrapperElem);
-    const templateElement = fragment.firstChild.innerHTML;
-    return templateElement;
+    // fragment.appendChild(wrapperElem);
+    const templateElement: HTMLElement = wrapperElem;
+    return templateElement.innerHTML;
   }
 
   // parse the document to find the element specified in the query selector
-  #parseQuery(htmlDocument) {
+  #parseQuery(htmlDocument: Document) {
     if (!(htmlDocument instanceof Document))
       throw new Error(`unknown input recieved`);
     const query = this.selector;
@@ -78,16 +76,15 @@ class Template extends EventTarget {
   }
 
   // EventListener for template ready Event
-  onReady(callback) {
+  onReady(callback: () => void) {
     this.addEventListener("ready", callback);
     return this;
   }
 
   // getter for template html
-  get html() {
+  get html(): string | undefined {
     return this.#templateFile;
   }
 }
 
-export default Template;
 export { Template };
