@@ -1,6 +1,7 @@
 // @ts-nocheck
 // import { Hash } from "https://unpkg.com/better-hash-router@latest";
 import { Hash } from "../dist/Hash.js";
+import { Template } from "../dist/Template.js";
 
 Hash.initialize();
 
@@ -34,3 +35,17 @@ if (location.hash === "") {
 // myNavigation.onReady("/", () => {
 //   console.log("/" in myNavigation.availableRoutes);
 // });
+
+const temp = new Template(
+  "contact",
+  "/examples/pages/contact.html",
+  "#contact"
+);
+
+temp.onReady(() => {
+  console.log(temp.html);
+});
+
+temp.onFailure(() => {
+  console.log("failed to fetch", temp.html);
+});
