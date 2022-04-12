@@ -12,7 +12,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _a, _Hash_targetElement, _Hash_availableRouters, _Hash_showPage;
+var _Hash_instances, _a, _Hash_targetElement, _Hash_availableRouters, _Hash_showPage, _Hash_emit;
 import { Template } from "./Template.js";
 //  HASH CLASS ===>>
 class Hash extends EventTarget {
@@ -24,6 +24,7 @@ class Hash extends EventTarget {
     constructor(name) {
         super();
         this.name = name;
+        _Hash_instances.add(this);
         // list of all routes created in a router instance
         this.routes = {};
         if (!Hash.isInitialized)
@@ -67,14 +68,11 @@ class Hash extends EventTarget {
         if (!data)
             throw new Error("Invalid Data Recieved");
         this.parseRouteData(data).then((parsedData) => {
-            const parsedEvent = new CustomEvent("doneparsing", {
-                detail: { parsingPath: path },
-            });
             const currentPath = location.hash.slice(1);
             this.routes[path] = parsedData;
             if (path === currentPath)
                 this.open(path);
-            this.dispatchEvent(parsedEvent);
+            __classPrivateFieldGet(this, _Hash_instances, "m", _Hash_emit).call(this, Hash.EVENTS.READY, { parsingPath: path });
         });
         return this;
     }
@@ -132,8 +130,7 @@ class Hash extends EventTarget {
         const dialog = __classPrivateFieldGet(Hash, _a, "f", _Hash_targetElement);
         if (path in this.routes)
             dialog.innerHTML = this.routes[path];
-        const openEvent = new CustomEvent("open", { detail: path });
-        this.dispatchEvent(openEvent);
+        __classPrivateFieldGet(this, _Hash_instances, "m", _Hash_emit).call(this, Hash.EVENTS.OPEN, { path });
         return this;
     }
     /**
@@ -144,7 +141,7 @@ class Hash extends EventTarget {
      */
     onPageLoad(path, fn) {
         this.addEventListener("open", (e) => {
-            if (path === e.detail)
+            if (path === e.detail.path)
                 fn(e);
         });
         return this;
@@ -163,18 +160,28 @@ class Hash extends EventTarget {
         return this;
     }
 }
-_a = Hash, _Hash_showPage = function _Hash_showPage() {
+_a = Hash, _Hash_instances = new WeakSet(), _Hash_showPage = function _Hash_showPage() {
     const { hash } = location;
     const path = location.href[location.href.length - 1] === "/" ? "/" : hash.slice(1);
     const routerAvailable = this.isRouteDefined(path);
     if (routerAvailable)
         return routerAvailable.open(path);
     const defaultRoute = this.isRouteDefined("/");
-    if (defaultRoute)
-        return defaultRoute.open("/"); // NEED TO UPDATE :BUG
+    defaultRoute && __classPrivateFieldGet(defaultRoute, _Hash_instances, "m", _Hash_emit).call(defaultRoute, this.EVENTS.UNKNOWN, { path });
+}, _Hash_emit = function _Hash_emit(event, detail) {
+    const eventToEmit = new CustomEvent(event, { detail });
+    this.dispatchEvent(eventToEmit);
+    return this;
 };
 // Hash binds to an HTMLElement to make routing possile.
 _Hash_targetElement = { value: document.body };
+// Supported Events
+Hash.EVENTS = {
+    OPEN: "open",
+    READY: "doneparsing",
+    CLOSE: "close",
+    UNKNOWN: "unknown",
+};
 // Array of all router instances
 _Hash_availableRouters = { value: [] };
 // status of library initialization

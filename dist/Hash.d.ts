@@ -2,6 +2,12 @@ import { IHash, IRoute, ITemplateInit } from "./types.js";
 declare class Hash extends EventTarget implements IHash {
     #private;
     name: string;
+    static readonly EVENTS: {
+        OPEN: string;
+        READY: string;
+        CLOSE: string;
+        UNKNOWN: string;
+    };
     static get availableRouters(): Hash[];
     static isRouteDefined(path: string): Hash | false;
     static close(): void;

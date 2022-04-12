@@ -6,6 +6,14 @@ class Hash extends EventTarget implements IHash {
   // Hash binds to an HTMLElement to make routing possile.
   static readonly #targetElement = document.body;
 
+  // Supported Events
+  static readonly EVENTS = {
+    OPEN: "open",
+    READY: "doneparsing",
+    CLOSE: "close",
+    UNKNOWN: "unknown",
+  };
+
   // Array of all router instances
   static #availableRouters: Hash[] = [];
 
@@ -29,7 +37,7 @@ class Hash extends EventTarget implements IHash {
     const routerAvailable = this.isRouteDefined(path);
     if (routerAvailable) return routerAvailable.open(path);
     const defaultRoute = this.isRouteDefined("/");
-    if (defaultRoute) return defaultRoute.open("/"); // NEED TO UPDATE :BUG
+    defaultRoute && defaultRoute.#emit(this.EVENTS.UNKNOWN, { path });
   }
 
   // removes the contents of the page
@@ -78,13 +86,10 @@ class Hash extends EventTarget implements IHash {
       throw new Error(`Route Handler for "${path}" is already defined`);
     if (!data) throw new Error("Invalid Data Recieved");
     this.parseRouteData(data).then((parsedData: string) => {
-      const parsedEvent = new CustomEvent("doneparsing", {
-        detail: { parsingPath: path },
-      });
       const currentPath = location.hash.slice(1);
       this.routes[path] = parsedData;
       if (path === currentPath) this.open(path);
-      this.dispatchEvent(parsedEvent);
+      this.#emit(Hash.EVENTS.READY, { parsingPath: path });
     });
     return this;
   }
@@ -141,8 +146,19 @@ class Hash extends EventTarget implements IHash {
     const dialog = Hash.#targetElement;
     if (path in this.routes) dialog.innerHTML = this.routes[path];
 
-    const openEvent = new CustomEvent("open", { detail: path });
-    this.dispatchEvent(openEvent);
+    this.#emit(Hash.EVENTS.OPEN, { path });
+    return this;
+  }
+
+  /**
+   * dispatch custom events
+   * @param event
+   * @param detail
+   * @returns
+   */
+  #emit(event: string, detail?: object) {
+    const eventToEmit = new CustomEvent(event, { detail });
+    this.dispatchEvent(eventToEmit);
     return this;
   }
 
@@ -154,7 +170,7 @@ class Hash extends EventTarget implements IHash {
    */
   onPageLoad(path: string, fn: Function): Hash {
     this.addEventListener("open", (e: CustomEventInit) => {
-      if (path === e.detail) fn(e);
+      if (path === e.detail.path) fn(e);
     });
     return this;
   }
