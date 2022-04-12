@@ -18,6 +18,19 @@ declare class Template extends EventTarget implements ITemplate {
      */
     onReady(callback: () => void): this;
     /**
+     *
+     * @param callback
+     * @returns
+     */
+    onFailure(callback: () => void): this;
+    /**
+     *
+     * @param event
+     * @param callback
+     * @returns
+     */
+    on(event: string, callback: () => void): this;
+    /**
      * getter for template html
      */
     get html(): string | undefined;
