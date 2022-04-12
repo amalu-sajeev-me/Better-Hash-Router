@@ -3,6 +3,11 @@ class Template extends EventTarget implements ITemplate {
   // fetched template String
   #templateFile?: string;
 
+  static readonly #EVENTS = {
+    READY: "ready",
+    FAILURE: "failure",
+  };
+
   /**
    * Template Construcor method
    * @param name
@@ -18,8 +23,7 @@ class Template extends EventTarget implements ITemplate {
 
     this.#readFile().then((response) => {
       this.#templateFile = this.#parseTemplate(response);
-      const responseReady = new CustomEvent("ready");
-      this.dispatchEvent(responseReady);
+      this.#emit(Template.#EVENTS.READY);
     });
   }
 
@@ -45,6 +49,8 @@ class Template extends EventTarget implements ITemplate {
       if (response.status === 404) throw new Error(`Page Not Found`);
     } catch (e: any) {
       console.error(`couldn't fetch the template \n${e}`);
+
+      this.#emit(Template.#EVENTS.FAILURE, e);
       if (e) return e.message;
     }
     return false;
@@ -89,12 +95,45 @@ class Template extends EventTarget implements ITemplate {
   }
 
   /**
+   *
+   * @param event
+   * @param detail
+   * @returns
+   */
+  #emit(event: string, detail?: object) {
+    const eventToEmit = new CustomEvent(event, { detail });
+    this.dispatchEvent(eventToEmit);
+    return this;
+  }
+
+  /**
    * EventListener for template ready Event
    * @param callback
    * @returns
    */
   onReady(callback: () => void) {
     this.addEventListener("ready", callback);
+    return this;
+  }
+
+  /**
+   *
+   * @param callback
+   * @returns
+   */
+  onFailure(callback: () => void) {
+    this.addEventListener("failure", callback);
+    return this;
+  }
+
+  /**
+   *
+   * @param event
+   * @param callback
+   * @returns
+   */
+  on(event: string, callback: () => void) {
+    this.addEventListener(event, callback);
     return this;
   }
 

@@ -18,7 +18,7 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
     return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
 };
-var _Template_instances, _Template_templateFile, _Template_readFile, _Template_parseTemplate, _Template_parseQuery;
+var _Template_instances, _a, _Template_templateFile, _Template_EVENTS, _Template_readFile, _Template_parseTemplate, _Template_parseQuery, _Template_emit;
 class Template extends EventTarget {
     /**
      * Template Construcor method
@@ -36,8 +36,7 @@ class Template extends EventTarget {
         _Template_templateFile.set(this, void 0);
         __classPrivateFieldGet(this, _Template_instances, "m", _Template_readFile).call(this).then((response) => {
             __classPrivateFieldSet(this, _Template_templateFile, __classPrivateFieldGet(this, _Template_instances, "m", _Template_parseTemplate).call(this, response), "f");
-            const responseReady = new CustomEvent("ready");
-            this.dispatchEvent(responseReady);
+            __classPrivateFieldGet(this, _Template_instances, "m", _Template_emit).call(this, __classPrivateFieldGet(Template, _a, "f", _Template_EVENTS).READY);
         });
     }
     /**
@@ -50,13 +49,32 @@ class Template extends EventTarget {
         return this;
     }
     /**
+     *
+     * @param callback
+     * @returns
+     */
+    onFailure(callback) {
+        this.addEventListener("failure", callback);
+        return this;
+    }
+    /**
+     *
+     * @param event
+     * @param callback
+     * @returns
+     */
+    on(event, callback) {
+        this.addEventListener(event, callback);
+        return this;
+    }
+    /**
      * getter for template html
      */
     get html() {
         return __classPrivateFieldGet(this, _Template_templateFile, "f");
     }
 }
-_Template_templateFile = new WeakMap(), _Template_instances = new WeakSet(), _Template_readFile = function _Template_readFile() {
+_a = Template, _Template_templateFile = new WeakMap(), _Template_instances = new WeakSet(), _Template_readFile = function _Template_readFile() {
     return __awaiter(this, void 0, void 0, function* () {
         const url = new URL(`${location.origin}/${this.resourceUrl}`);
         const headers = new Headers();
@@ -75,6 +93,7 @@ _Template_templateFile = new WeakMap(), _Template_instances = new WeakSet(), _Te
         }
         catch (e) {
             console.error(`couldn't fetch the template \n${e}`);
+            __classPrivateFieldGet(this, _Template_instances, "m", _Template_emit).call(this, __classPrivateFieldGet(Template, _a, "f", _Template_EVENTS).FAILURE, e);
             if (e)
                 return e.message;
         }
@@ -101,7 +120,15 @@ _Template_templateFile = new WeakMap(), _Template_instances = new WeakSet(), _Te
     if (!(result instanceof HTMLElement))
         throw new Error(`invalid query.\ncouldn't find ${query} element`);
     return result;
+}, _Template_emit = function _Template_emit(event, detail) {
+    const eventToEmit = new CustomEvent(event, { detail });
+    this.dispatchEvent(eventToEmit);
+    return this;
 };
+_Template_EVENTS = { value: {
+        READY: "ready",
+        FAILURE: "failure",
+    } };
 export default Template;
 export { Template };
 //# sourceMappingURL=Template.js.map
