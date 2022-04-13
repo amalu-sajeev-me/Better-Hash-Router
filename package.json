@@ -1,9 +1,9 @@
 {
   "name": "better-hash-router",
-  "version": "3.1.5",
+  "version": "3.2.0",
   "description": "A Router Library for Hash links on an html page",
   "type": "module",
-  "main": "./index.js",
+  "main": "./dist/Hash.js",
   "scripts": {
     "build": "npx tsc --watch",
     "test": "mocha",

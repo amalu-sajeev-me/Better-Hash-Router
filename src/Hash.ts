@@ -6,12 +6,19 @@ class Hash extends EventTarget implements IHash {
   // Hash binds to an HTMLElement to make routing possile.
   static readonly #targetElement = document.body;
 
+  // status of library initialization
+  static isInitialized = false;
+
+  // mapped object of already fetched templates
+  static availableTemplates = new Map();
+
   // Supported Events
   static readonly EVENTS = {
     OPEN: "open",
     READY: "doneparsing",
     CLOSE: "close",
     UNKNOWN: "unknown",
+    ERROR: "error",
   };
 
   // Array of all router instances
@@ -54,12 +61,6 @@ class Hash extends EventTarget implements IHash {
     return this.isInitialized;
   }
 
-  // status of library initialization
-  static isInitialized = false;
-
-  // mapped object of already fetched templates
-  static availableTemplates = new Map();
-
   // list of all routes created in a router instance
   routes: IRoute = {};
   /**
@@ -85,12 +86,16 @@ class Hash extends EventTarget implements IHash {
     if (Hash.isRouteDefined(path))
       throw new Error(`Route Handler for "${path}" is already defined`);
     if (!data) throw new Error("Invalid Data Recieved");
-    this.parseRouteData(data).then((parsedData: string) => {
-      const currentPath = location.hash.slice(1);
-      this.routes[path] = parsedData;
-      if (path === currentPath) this.open(path);
-      this.#emit(Hash.EVENTS.READY, { parsingPath: path });
-    });
+    this.parseRouteData(data)
+      .then((parsedData: string) => {
+        const currentPath = location.hash.slice(1);
+        this.routes[path] = parsedData;
+        if (path === currentPath) this.open(path);
+        this.#emit(Hash.EVENTS.READY, { parsingPath: path });
+      })
+      .catch((error) => {
+        this.#emit(Hash.EVENTS.ERROR, { error });
+      });
     return this;
   }
 
@@ -111,7 +116,7 @@ class Hash extends EventTarget implements IHash {
   }
 
   /**
-   *
+   * fetch a template from an html file
    * @param {ITemplateInit}
    * @returns {Promise<any>}
    */
@@ -139,6 +144,7 @@ class Hash extends EventTarget implements IHash {
   /**
    * open a page with specified path if its exists
    * @param path
+   * @returns {Hash}
    */
   open(path: string): Hash {
     if (!Hash.isRouteDefined(path)) throw new Error("Invalid Path");
@@ -154,7 +160,7 @@ class Hash extends EventTarget implements IHash {
    * dispatch custom events
    * @param event
    * @param detail
-   * @returns
+   * @returns {Hash}
    */
   #emit(event: string, detail?: object) {
     const eventToEmit = new CustomEvent(event, { detail });
@@ -184,6 +190,18 @@ class Hash extends EventTarget implements IHash {
   onReady(path: string, fn: Function): Hash {
     this.addEventListener("doneparsing", (e: CustomEventInit) => {
       if (path === e.detail.parsingPath) fn(e);
+    });
+    return this;
+  }
+
+  /**
+   *
+   * @param fn
+   * @returns {Hash}
+   */
+  onError(fn: Function): Hash {
+    this.addEventListener(Hash.EVENTS.ERROR, (e) => {
+      fn(e);
     });
     return this;
   }

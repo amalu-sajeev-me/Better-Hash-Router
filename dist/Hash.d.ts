@@ -2,18 +2,19 @@ import { IHash, IRoute, ITemplateInit } from "./types.js";
 declare class Hash extends EventTarget implements IHash {
     #private;
     name: string;
+    static isInitialized: boolean;
+    static availableTemplates: Map<any, any>;
     static readonly EVENTS: {
         OPEN: string;
         READY: string;
         CLOSE: string;
         UNKNOWN: string;
+        ERROR: string;
     };
     static get availableRouters(): Hash[];
     static isRouteDefined(path: string): Hash | false;
     static close(): void;
     static initialize(): boolean;
-    static isInitialized: boolean;
-    static availableTemplates: Map<any, any>;
     routes: IRoute;
     /**
      * new router constructor
@@ -35,7 +36,7 @@ declare class Hash extends EventTarget implements IHash {
      */
     parseRouteData(data: string | HTMLElement | Function): Promise<any>;
     /**
-     *
+     * fetch a template from an html file
      * @param {ITemplateInit}
      * @returns {Promise<any>}
      */
@@ -44,6 +45,7 @@ declare class Hash extends EventTarget implements IHash {
     /**
      * open a page with specified path if its exists
      * @param path
+     * @returns {Hash}
      */
     open(path: string): Hash;
     /**
@@ -60,6 +62,12 @@ declare class Hash extends EventTarget implements IHash {
      * @returns {Hash}
      */
     onReady(path: string, fn: Function): Hash;
+    /**
+     *
+     * @param fn
+     * @returns {Hash}
+     */
+    onError(fn: Function): Hash;
 }
 export default Hash;
 export { Hash };

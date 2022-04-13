@@ -67,12 +67,16 @@ class Hash extends EventTarget {
             throw new Error(`Route Handler for "${path}" is already defined`);
         if (!data)
             throw new Error("Invalid Data Recieved");
-        this.parseRouteData(data).then((parsedData) => {
+        this.parseRouteData(data)
+            .then((parsedData) => {
             const currentPath = location.hash.slice(1);
             this.routes[path] = parsedData;
             if (path === currentPath)
                 this.open(path);
             __classPrivateFieldGet(this, _Hash_instances, "m", _Hash_emit).call(this, Hash.EVENTS.READY, { parsingPath: path });
+        })
+            .catch((error) => {
+            __classPrivateFieldGet(this, _Hash_instances, "m", _Hash_emit).call(this, Hash.EVENTS.ERROR, { error });
         });
         return this;
     }
@@ -97,7 +101,7 @@ class Hash extends EventTarget {
         });
     }
     /**
-     *
+     * fetch a template from an html file
      * @param {ITemplateInit}
      * @returns {Promise<any>}
      */
@@ -123,6 +127,7 @@ class Hash extends EventTarget {
     /**
      * open a page with specified path if its exists
      * @param path
+     * @returns {Hash}
      */
     open(path) {
         if (!Hash.isRouteDefined(path))
@@ -159,6 +164,17 @@ class Hash extends EventTarget {
         });
         return this;
     }
+    /**
+     *
+     * @param fn
+     * @returns {Hash}
+     */
+    onError(fn) {
+        this.addEventListener(Hash.EVENTS.ERROR, (e) => {
+            fn(e);
+        });
+        return this;
+    }
 }
 _a = Hash, _Hash_instances = new WeakSet(), _Hash_showPage = function _Hash_showPage() {
     const { hash } = location;
@@ -175,19 +191,20 @@ _a = Hash, _Hash_instances = new WeakSet(), _Hash_showPage = function _Hash_show
 };
 // Hash binds to an HTMLElement to make routing possile.
 _Hash_targetElement = { value: document.body };
+// status of library initialization
+Hash.isInitialized = false;
+// mapped object of already fetched templates
+Hash.availableTemplates = new Map();
 // Supported Events
 Hash.EVENTS = {
     OPEN: "open",
     READY: "doneparsing",
     CLOSE: "close",
     UNKNOWN: "unknown",
+    ERROR: "error",
 };
 // Array of all router instances
 _Hash_availableRouters = { value: [] };
-// status of library initialization
-Hash.isInitialized = false;
-// mapped object of already fetched templates
-Hash.availableTemplates = new Map();
 export default Hash;
 export { Hash };
 //# sourceMappingURL=Hash.js.map

@@ -20,6 +20,6 @@
     "skipLibCheck": true,
     "esModuleInterop": true
   },
-  "exclude": ["test"],
+  "exclude": ["test", "node_modules"],
   "include": ["src"]
 }
