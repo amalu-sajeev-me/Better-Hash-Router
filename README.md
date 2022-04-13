@@ -17,6 +17,7 @@ import { Hash } from "https://unpkg.com/better-hash-router@latest";
 
 or if you're using npm
 
+**Install** ``npm i better-hash-router``
 ```javascript
 // ES6
 import { Hash } from "better-hash-router";
@@ -24,7 +25,7 @@ import { Hash } from "better-hash-router";
 // CommonJS
 const { Hash } = require("better-hash-router");
 ```
- Note: The ``<body> </body>`` must be empty. all the content on each route will be parsed from your html template files or you can write it in your javascript file as well.
+> Note: The ``<body> </body>`` must be empty. all the content on each route will be parsed and injected to the ``<body></body>`` at runtime.
 
 ### How TO
 
@@ -33,12 +34,8 @@ const { Hash } = require("better-hash-router");
 ```javascript
 Hash.initialize();
 ```
-2. Now you have to create a new Router instance.
+2. Now you have to create a new instance of ``Hash``
 ```javascript
-/* 
- * This returns a new router instance. 
- */
- 
 const myRouter = new Hash("router-name");
 ```
 
@@ -47,33 +44,36 @@ const myRouter = new Hash("router-name");
    ``route()`` method accepts 2 parameters. 
   * ``path``: a String representing the hashed path without the ``#``. 
      eg. if path is ``"#about"`` then remove the ``#``. which is ``"about"``
-  * ``data``: ``String | HTMLElement | Object``
+  * ``data``: ``String | HTMLElement | Object | Function``
      data can be passed in as multiple formats. see the examples below.
   * ``route()`` method returns the router instance. therefore the method is chainable.
      
    _Both Arguments are Mandatory._
  
- > ``"/"`` path determines the root path. so the contents assigned to the ``"/"`` route will be displayed when you open your page.
+ > ``"/"`` path determines the root path, which is your default path. so the contents assigned to the ``"/"`` route will be displayed when you open your page. 
  
- 
-- Here, ``data`` is Passed as a String
+##### Adding new routes
+- ``data: string``
 
 ```javascript
-// http://localhost/
+Hash.initialize();
+const myRouter = new Hash("router-name");
 myRouter.route("/", "this will be displayed on your root");
 ```
 
-- Here, ``data`` will be passed as an HTMLElement
+- ``data: HTMLElement``
 
 ```javascript
+Hash.initialize();
+const myRouter = new Hash("router-name");
+
 const aboutDiv = document.createElement("div");
 aboutDiv.innerHTML = "Hey this is about me";
 
-// http://localhost/#about
 myRouter.route("about", aboutDiv);
 ```
 
-- Here ``data`` will be passed as an ``Object``
+- ``data: { template, selector }``
   * ``{ 
     template: "absolute path to file", 
     selector: "css selector" 
@@ -85,10 +85,19 @@ myRouter.route("about", aboutDiv);
  _if ``selector`` is not provided, then all the contents of the ``contact.html``'s body will be copied to the route._
 
 ```javascript
-// http://localhost/#contact
+Hash.initialize();
+const myRouter = new Hash("router-name");
 myRouter.route("contact", { 
  template: "/pages/contact.html", 
  selector: "#contact-form" 
+});
+```
+``data: Function``
+```javascript
+Hash.initialize();
+const myRouter = new Hash("router-name");
+myRouter.route("/", () => {
+ return "this data comes from a function";
 });
 ```
 ****
@@ -97,7 +106,8 @@ myRouter.route("contact", {
 ``instance.route()`` can be chained since it returns the instance itself.
 
 ```javascript
-const myRouter = Hash.router("navigation");
+Hash.initialize();
+const myRouter = new Hash("router-name");
 myRouter
 .route("/", "this page shows info about me")
 .route("contact", "my contact info")
@@ -119,13 +129,41 @@ myRouter.open("contact");
 ****
 #### Events
 
+```javascript
+Hash.EVENTS // all supported events can be accessed via this static property.
+```
+
 1. ``open`` - fires when you open a page using instance.open(path).
 2. ``doneparsing`` - fires when a intance.route(path, data) parse a template.
+3. ``close`` - fires when the ``close()`` method is called. 
+4. ``error`` - fires when a parsing error occures on a route.
 
 #### Event Handlers
 
-1. ``addEventListener`` - ``instance.addEventListener("event", callback)``.
-2. ``onPageLoad`` - ``instance.onPageLoad("path", callback)``.
+1. ``addEventListener(event, callback)`` 
+```javascript
+myRouter.addEventListener("open",function (event){
+ // your code goes here..
+});
+```
+3. ``onPageLoad(path, callback)``
+```javascript
+myRouter.onPageLoad("/", function (event) {
+ // your code goes here..
+});
+```
+4. ``onReady(path, callback)``
+```javascript
+myRouter.onReady("/", function (event) {
+ your code goes here..
+});
+```
+5. ``onError(callback)``
+```javascript
+myRouter.onError(function(){
+ // your code goes here..
+});
+```
 
 #### Instance Methods
 
@@ -134,7 +172,9 @@ myRouter.open("contact");
 2. open(path)
 3. fetchTemplate({template, selector})
 4. onPageLoad(path, callback)
-5. addEventListener(event, callback)
+5. onReady(path, callback)
+6. onError(callback)
+7. addEventListener(event, callback)
 ```
 
 #### Instance Properties
@@ -156,6 +196,7 @@ myRouter.open("contact");
 1. availableRouters
 2. isInitialized
 3. availableTemplates
+4. EVENTS
 ```
 
 ****
