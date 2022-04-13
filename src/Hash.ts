@@ -83,6 +83,7 @@ class Hash extends EventTarget implements IHash {
    *
    **/
   route(path: string, data: string | Function | HTMLElement): IHash {
+    if (!Hash.isRouteDefined("/")) throw new Error(`set the "/" route first`);
     if (Hash.isRouteDefined(path))
       throw new Error(`Route Handler for "${path}" is already defined`);
     if (!data) throw new Error("Invalid Data Recieved");

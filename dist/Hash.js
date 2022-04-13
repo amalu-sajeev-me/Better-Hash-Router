@@ -63,6 +63,8 @@ class Hash extends EventTarget {
      *
      **/
     route(path, data) {
+        if (!Hash.isRouteDefined("/"))
+            throw new Error(`set the "/" route first`);
         if (Hash.isRouteDefined(path))
             throw new Error(`Route Handler for "${path}" is already defined`);
         if (!data)
