@@ -1,6 +1,6 @@
 {
   "name": "better-hash-router",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "A Router Library for Hash links on an html page",
   "type": "module",
   "main": "./dist/Hash.js",
