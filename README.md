@@ -74,10 +74,12 @@ myRouter.route("about", aboutDiv);
 ```
 
 - ``data: { template, selector }``
-  * ``{ 
+```javascript 
+   { 
     template: "absolute path to file", 
     selector: "css selector" 
-    }``
+    }
+```
  
  > assuming that you have an html file on ``/pages/contact.html`` and there is an element with id ``contact-form``
  
@@ -155,7 +157,7 @@ myRouter.onPageLoad("/", function (event) {
 4. ``onReady(path, callback)``
 ```javascript
 myRouter.onReady("/", function (event) {
- your code goes here..
+ // your code goes here..
 });
 ```
 5. ``onError(callback)``
