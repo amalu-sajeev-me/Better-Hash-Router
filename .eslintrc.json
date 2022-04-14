@@ -1,19 +1,36 @@
-{
+{ "$schema": "https://json.schemastore.org/eslintrc",
     "env": {
         "browser": true,
-        "es2021": true
+        "amd": true,
+        "es2021": true,
+        "es6": true, 
+        "node": true, 
+        "mocha": true
     },
     "extends": [
-        "standard"
+        "standard", "eslint:recommended"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": "latest",
-        "sourceType": "module"
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "arrowFunctions": true,
+            "modules": true
+        }
+    },
+    "globals":  {
+        "browser": true, 
+        "commonjs": true
     },
     "plugins": [
         "@typescript-eslint"
     ],
     "rules": {
+        "curly": "off",
+        "quotes": "off",
+        "no-extra-semi":"off",
+        "semi": "off",
+        "comma-dangle": "off"
     }
 }

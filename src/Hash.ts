@@ -25,19 +25,19 @@ class Hash extends EventTarget implements IHash {
   static #availableRouters: Hash[] = [];
 
   // getter for readonly availableRouters property
-  static get availableRouters() {
+  static get availableRouters () {
     return this.#availableRouters;
   }
 
   // checks if a specified path exists in any of the routers
-  static isRouteDefined(path: string): Hash | false {
-    for (let router of this.availableRouters)
+  static isRouteDefined (path: string): Hash | false {
+    for (const router of this.availableRouters)
       if (path in router.availableRoutes) return router;
     return false;
   }
 
   // shows the pages on certain events
-  static #showPage() {
+  static #showPage () {
     const { hash } = location;
     const path =
       location.href[location.href.length - 1] === "/" ? "/" : hash.slice(1);
@@ -48,12 +48,12 @@ class Hash extends EventTarget implements IHash {
   }
 
   // removes the contents of the page
-  static close() {
+  static close () {
     this.#targetElement.innerHTML = "";
   }
 
   // initializes the library
-  static initialize() {
+  static initialize () {
     if (this.isInitialized) throw new Error("Already Initialized");
     window.addEventListener("load", this.#showPage.bind(this));
     window.addEventListener("hashchange", this.#showPage.bind(this));
@@ -69,7 +69,7 @@ class Hash extends EventTarget implements IHash {
    */
 
   // Hash constructor method
-  constructor(public name: string) {
+  constructor (public name: string) {
     super();
     if (!Hash.isInitialized) throw new Error("Hash is not initialized");
     Hash.#availableRouters.push(this);
@@ -82,8 +82,7 @@ class Hash extends EventTarget implements IHash {
    * @return {Hash}
    *
    **/
-  route(path: string, data: string | Function | HTMLElement): IHash {
-    if (!Hash.isRouteDefined("/")) throw new Error(`set the "/" route first`);
+  route (path: string, data: string | Function | HTMLElement): IHash {
     if (Hash.isRouteDefined(path))
       throw new Error(`Route Handler for "${path}" is already defined`);
     if (!data) throw new Error("Invalid Data Recieved");
@@ -105,7 +104,7 @@ class Hash extends EventTarget implements IHash {
    * @param data
    * @returns {Promise<any>}
    */
-  async parseRouteData(data: string | HTMLElement | Function): Promise<any> {
+  async parseRouteData (data: string | HTMLElement | Function): Promise<any> {
     if (typeof data === "string") return data;
     if (data.constructor.name === "Promise") return await data;
     if (typeof data === "object" && "template" in data)
@@ -121,7 +120,7 @@ class Hash extends EventTarget implements IHash {
    * @param {ITemplateInit}
    * @returns {Promise<any>}
    */
-  async fetchTemplate({ template, selector }: ITemplateInit): Promise<any> {
+  async fetchTemplate ({ template, selector }: ITemplateInit): Promise<any> {
     if (!template)
       throw new Error("empty template not allowed. must specify the path");
 
@@ -138,7 +137,7 @@ class Hash extends EventTarget implements IHash {
   }
 
   // getter method for available routes in a router instance
-  get availableRoutes() {
+  get availableRoutes () {
     return this.routes;
   }
 
@@ -147,7 +146,7 @@ class Hash extends EventTarget implements IHash {
    * @param path
    * @returns {Hash}
    */
-  open(path: string): Hash {
+  open (path: string): Hash {
     if (!Hash.isRouteDefined(path)) throw new Error("Invalid Path");
 
     const dialog = Hash.#targetElement;
@@ -163,7 +162,7 @@ class Hash extends EventTarget implements IHash {
    * @param detail
    * @returns {Hash}
    */
-  #emit(event: string, detail?: object) {
+  #emit (event: string, detail?: object) {
     const eventToEmit = new CustomEvent(event, { detail });
     this.dispatchEvent(eventToEmit);
     return this;
@@ -175,7 +174,9 @@ class Hash extends EventTarget implements IHash {
    * @param fn
    * @returns {Hash}
    */
-  onPageLoad(path: string, fn: Function): Hash {
+
+  /* global CustomEventInit */
+  onPageLoad (path: string, fn: Function): Hash {
     this.addEventListener("open", (e: CustomEventInit) => {
       if (path === e.detail.path) fn(e);
     });
@@ -188,7 +189,7 @@ class Hash extends EventTarget implements IHash {
    * @param fn
    * @returns {Hash}
    */
-  onReady(path: string, fn: Function): Hash {
+  onReady (path: string, fn: Function): Hash {
     this.addEventListener("doneparsing", (e: CustomEventInit) => {
       if (path === e.detail.parsingPath) fn(e);
     });
@@ -200,7 +201,7 @@ class Hash extends EventTarget implements IHash {
    * @param fn
    * @returns {Hash}
    */
-  onError(fn: Function): Hash {
+  onError (fn: Function): Hash {
     this.addEventListener(Hash.EVENTS.ERROR, (e) => {
       fn(e);
     });

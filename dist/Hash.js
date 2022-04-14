@@ -37,7 +37,7 @@ class Hash extends EventTarget {
     }
     // checks if a specified path exists in any of the routers
     static isRouteDefined(path) {
-        for (let router of this.availableRouters)
+        for (const router of this.availableRouters)
             if (path in router.availableRoutes)
                 return router;
         return false;
@@ -63,8 +63,6 @@ class Hash extends EventTarget {
      *
      **/
     route(path, data) {
-        if (!Hash.isRouteDefined("/"))
-            throw new Error(`set the "/" route first`);
         if (Hash.isRouteDefined(path))
             throw new Error(`Route Handler for "${path}" is already defined`);
         if (!data)
@@ -146,6 +144,7 @@ class Hash extends EventTarget {
      * @param fn
      * @returns {Hash}
      */
+    /* global CustomEventInit */
     onPageLoad(path, fn) {
         this.addEventListener("open", (e) => {
             if (path === e.detail.path)
